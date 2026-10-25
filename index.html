@@ -28,24 +28,9 @@
     opacity: 0.5;
     animation: float 12s ease-in-out infinite alternate;
   }
-  .glow.one {
-    width: 420px; height: 420px;
-    background: #1f6feb;
-    top: -120px; left: -100px;
-  }
-  .glow.two {
-    width: 380px; height: 380px;
-    background: #a371f7;
-    bottom: -140px; right: -80px;
-    animation-delay: -6s;
-  }
-  .glow.three {
-    width: 300px; height: 300px;
-    background: #3fb950;
-    bottom: 20%; left: 15%;
-    opacity: 0.25;
-    animation-delay: -3s;
-  }
+  .glow.one { width: 420px; height: 420px; background: #1f6feb; top: -120px; left: -100px; }
+  .glow.two { width: 380px; height: 380px; background: #a371f7; bottom: -140px; right: -80px; animation-delay: -6s; }
+  .glow.three { width: 300px; height: 300px; background: #3fb950; bottom: 20%; left: 15%; opacity: 0.25; animation-delay: -3s; }
 
   @keyframes float {
     from { transform: translate(0, 0) scale(1); }
@@ -72,16 +57,9 @@
     animation: shine 6s linear infinite;
   }
 
-  @keyframes shine {
-    to { background-position: 300% 0; }
-  }
+  @keyframes shine { to { background-position: 300% 0; } }
 
-  .subtitle {
-    margin-top: 18px;
-    font-size: clamp(0.95rem, 2.6vw, 1.35rem);
-    color: #8b949e;
-    letter-spacing: 0.18em;
-  }
+  .subtitle { margin-top: 18px; font-size: clamp(0.95rem, 2.6vw, 1.35rem); color: #8b949e; letter-spacing: 0.18em; }
 
   .tag {
     display: inline-block;
@@ -95,24 +73,50 @@
     background: rgba(88, 166, 255, 0.08);
   }
 
-  /* 标题末尾的闪烁光标 */
-  .cursor {
-    display: inline-block;
-    width: 0.06em;
-    height: 0.95em;
-    background: #58a6ff;
-    margin-left: 0.08em;
-    vertical-align: -0.12em;
-    animation: blink 1s steps(1) infinite;
-  }
+  .cursor { display: inline-block; width: 0.06em; height: 0.95em; background: #58a6ff; margin-left: 0.08em; vertical-align: -0.12em; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
 
-  @keyframes blink {
-    50% { opacity: 0; }
+  /* --- 新增：留言按钮和弹窗样式 --- */
+  .btn-message {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    padding: 12px 24px;
+    background: rgba(88, 166, 255, 0.15);
+    border: 1px solid #58a6ff;
+    color: #58a6ff;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: bold;
+    z-index: 100;
+    transition: all 0.3s;
+    backdrop-filter: blur(10px);
   }
+  .btn-message:hover { background: #58a6ff; color: #0a0e17; box-shadow: 0 0 15px rgba(88, 166, 255, 0.5); }
 
-  @media (prefers-reduced-motion: reduce) {
-    * { animation: none !important; }
+  /* 弹窗样式 */
+  dialog {
+    margin: auto;
+    width: 90%;
+    max-width: 700px;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    color: #e6edf3;
+    padding: 20px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+    outline: none;
   }
+  dialog::backdrop {
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+  }
+  .dialog-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #30363d; padding-bottom: 10px; }
+  .dialog-header h2 { font-size: 1.2rem; color: #58a6ff; }
+  .close-btn { background: none; border: none; color: #8b949e; font-size: 1.5rem; cursor: pointer; }
+  .close-btn:hover { color: #ff7b72; }
+
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
 </style>
 </head>
 <body>
@@ -125,5 +129,49 @@
     <p class="subtitle">ALL KILL · 全题满分 · 一往无前</p>
     <div class="tag">CSP-J/S · 向满分进发</div>
   </main>
+
+  <!-- 悬浮留言按钮 -->
+  <button class="btn-message" id="openDialogBtn">💬 留言板</button>
+
+  <!-- 留言弹窗 -->
+  <dialog id="messageDialog">
+    <div class="dialog-header">
+      <h2>留言板</h2>
+      <button class="close-btn" id="closeDialogBtn">&times;</button>
+    </div>
+    <div class="giscus"></div> <!-- giscus 评论将挂载在这里 -->
+  </dialog>
+
+  <!-- 弹窗控制逻辑 -->
+  <script>
+    const dialog = document.getElementById('messageDialog');
+    document.getElementById('openDialogBtn').addEventListener('click', () => dialog.showModal());
+    document.getElementById('closeDialogBtn').addEventListener('click', () => dialog.close());
+    
+    // 点击背景关闭弹窗
+    dialog.addEventListener('click', (e) => {
+      const rect = dialog.getBoundingClientRect();
+      const isInDialog = (rect.top <= e.clientY && e.clientY <= rect.top + rect.height &&
+        rect.left <= e.clientX && e.clientX <= rect.left + rect.width);
+      if (!isInDialog) dialog.close();
+    });
+  </script>
+
+  <!-- giscus 评论系统脚本 (请替换为你自己的配置) -->
+  <script src="https://giscus.app/client.js"
+        data-repo="KBP27444/akcspjstest"
+        data-repo-id="R_kgDOVW2djQ"
+        data-category="General"
+        data-category-id="DIC_kwDOVW2djc4DJlYR"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="preferred_color_scheme"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+</script>
 </body>
 </html>
